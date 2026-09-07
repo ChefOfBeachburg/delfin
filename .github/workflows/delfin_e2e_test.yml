@@ -7,14 +7,14 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        platform: [ubuntu-20.04]
-        python-version: [ 3.8 ]
+        platform: [ubuntu-22.04]
+        python-version: [ 3.10 ]
 
     steps:
       - name: Checkout delfin code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Python version ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -36,7 +36,7 @@ jobs:
           rabbitmq user: 'guest'
           rabbitmq password: 'guest'
       - name: E2E Testing - Install Redis
-        uses: supercharge/redis-github-action@1.2.0
+        uses: supercharge/redis-github-action@1.7.0
         with:
           redis-version: 6
       - name: E2E Testing - Build and Deploy Delfin with Test driver

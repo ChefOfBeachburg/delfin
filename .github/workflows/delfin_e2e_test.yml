@@ -46,6 +46,7 @@ jobs:
           sudo mkdir -p /etc/delfin
           sudo chmod 0777 /etc/delfin
           python3 setup.py install
+          sed -i 's|sqlite:////var/lib/delfin/delfin.sqlite|sqlite:////var/lib/delfin/delfin.sqlite?timeout=30|' ./etc/delfin/delfin.conf
           cp ./etc/delfin/api-paste.ini /etc/delfin/
           python3 ./script/create_db.py --config-file ./etc/delfin/delfin.conf
           sleep 1

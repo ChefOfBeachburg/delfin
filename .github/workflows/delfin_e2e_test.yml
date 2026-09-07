@@ -68,3 +68,9 @@ jobs:
           sleep 1
           robot delfin/tests/e2e
         shell: bash
+      - name: E2E Testing - Print logs on failure
+        if: failure()
+        run: |
+            cat /tmp/api.log 2>/dev/null || true
+            cat /tmp/task.log 2>/dev/null || true
+            cat /tmp/alert.log 2>/dev/null || true

@@ -9,6 +9,15 @@ jobs:
       matrix:
         platform: [ubuntu-22.04]
         python-version: [ 3.8 ]
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: delfin
+          MYSQL_DATABASE: delfin
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout delfin code
@@ -23,6 +32,7 @@ jobs:
           pip install -r requirements.txt
           pip install -r test-requirements.txt
           pip install tox codecov
+          pip install pymysql
       - name: E2E Testing - Add Test Driver to Delfin
         run: |
           str="\ \ \ \ \ \ \ \ \ \ \ \ 'test_vendor test_model = delfin.tests.e2e.testdriver:TestDriver',"
@@ -46,10 +56,9 @@ jobs:
           sudo mkdir -p /etc/delfin
           sudo chmod 0777 /etc/delfin
           python3 setup.py install
-          sed -i 's|sqlite:////var/lib/delfin/delfin.sqlite|sqlite:////var/lib/delfin/delfin.sqlite?timeout=30|' ./etc/delfin/delfin.conf
+          sed -i 's|sqlite:////var/lib/delfin/delfin.sqlite.*|mysql+pymysql://root:delfin@127.0.0.1/delfin|' ./etc/delfin/delfin.conf
           cp ./etc/delfin/api-paste.ini /etc/delfin/
           python3 ./script/create_db.py --config-file ./etc/delfin/delfin.conf
-          python3 -c "import sqlite3; conn = sqlite3.connect('/var/lib/delfin/delfin.sqlite'); conn.execute('PRAGMA journal_mode=WAL'); conn.close()"
           sleep 1
           python3 ./delfin/cmd/task.py --config-file ./etc/delfin/delfin.conf > /tmp/task.log 2>&1 &
           python3 ./delfin/cmd/alert.py --config-file ./etc/delfin/delfin.conf > /tmp/alert.log 2>&1 &
